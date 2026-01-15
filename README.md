@@ -85,7 +85,7 @@ O servidor estará rodando em: `http://localhost:5000`
 ## 📦 Funcionalidades
 
 ✅ Interface moderna e responsiva  
-✅ Upload de múltiplos arquivos 
+✅ Upload de múltiplos arquivos  
 ✅ Análise com IA (Gemini)  
 ✅ Feedback estruturado e detalhado  
 ✅ Histórico de conversas  
