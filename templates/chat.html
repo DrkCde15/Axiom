@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - Axiom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --primary-light: #3b82f6;
+            --secondary: #0ea5e9;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-light: #64748b;
+            --bg-light: #f8fafc;
+            --bg-chat: #ffffff;
+            --border: #e2e8f0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: white;
+        }
+
+        .back-btn {
+            background: var(--bg-light);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Chat Container */
+        .chat-wrapper {
+            height: calc(100vh - 73px);
+            display: flex;
+            flex-direction: column;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        /* Messages Styles */
+        .message { margin-bottom: 1.5rem; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .user-message { display: flex; justify-content: flex-end; }
+        .user-bubble {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            border-radius: 18px 18px 4px 18px;
+            max-width: 70%;
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+        }
+
+        .ai-message { display: flex; gap: 0.75rem; }
+        .ai-avatar {
+            width: 40px; height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; flex-shrink: 0;
+        }
+
+        .ai-bubble {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 1.2rem;
+            border-radius: 4px 18px 18px 18px;
+            max-width: 85%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Formatação de texto dentro da resposta da IA */
+        .ai-response-text { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+        .ai-response-text p { margin-bottom: 0.8rem; }
+        .ai-response-text ul, .ai-response-text ol { margin-left: 1.5rem; margin-bottom: 0.8rem; }
+        .ai-response-text strong { color: var(--text-primary); }
+
+        /* Input Area */
+        .input-area {
+            background: white;
+            border-top: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+        }
+
+        .input-wrapper { display: flex; flex-direction: column; gap: 1rem; }
+        textarea {
+            width: 100%; padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            resize: none; font-family: inherit;
+        }
+
+        .input-actions { display: flex; gap: 1rem; align-items: center; }
+        .file-input-label {
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-light);
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        #fileInput { display: none; }
+
+        .send-btn {
+            flex: 1;
+            background: var(--primary);
+            color: white; border: none;
+            padding: 0.875rem; border-radius: 10px;
+            cursor: pointer; font-weight: 600;
+        }
+
+        .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .loading { display: none; text-align: center; padding: 1rem; }
+        .spinner {
+            width: 30px; height: 30px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        .file-preview { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .file-item { background: #eef2ff; padding: 4px 8px; border-radius: 6px; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <div class="logo-icon">✓</div>
+            <span>Axiom</span>
+        </a>
+        <a href="/" class="back-btn">← Voltar</a>
+    </nav>
+
+    <div class="chat-wrapper">
+        <div class="messages-container" id="messages">
+            <div class="empty-state" style="text-align: center; padding-top: 5rem;">
+                <div style="font-size: 3rem;">💬</div>
+                <h3>Olá! Como posso ajudar?</h3>
+                <p>Envie sua tarefa ou dúvida para começar.</p>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">IA analisando...</p>
+        </div>
+
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea id="userInput" rows="3" placeholder="Digite sua mensagem aqui... (Ctrl+Enter para enviar)"></textarea>
+                
+                <div class="input-actions">
+                    <label class="file-input-label" for="fileInput">📎 Anexar arquivos</label>
+                    <input type="file" id="fileInput" multiple>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">Enviar →</button>
+                </div>
+                <div class="file-preview" id="filePreview"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFiles = [];
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            selectedFiles = selectedFiles.concat(Array.from(e.target.files));
+            updateFilePreview();
+        });
+
+        function updateFilePreview() {
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = selectedFiles.map((f, i) => `
+                <div class="file-item">
+                    ${f.name} <span style="cursor:pointer;color:red" onclick="removeFile(${i})">×</span>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFilePreview();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            const messagesDiv = document.getElementById('messages');
+            
+            if (!message && selectedFiles.length === 0) return;
+
+            // Limpar estado inicial
+            const emptyState = messagesDiv.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+
+            // Mensagem do Usuário
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user-message';
+            userMsg.innerHTML = `<div class="user-bubble">${message.replace(/\n/g, '<br>')}</div>`;
+            messagesDiv.appendChild(userMsg);
+            
+            // Bloquear interface
+            input.value = '';
+            input.disabled = true;
+            document.getElementById('sendBtn').disabled = true;
+            document.getElementById('loading').style.display = 'block';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            const formData = new FormData();
+            formData.append('message', message);
+            selectedFiles.forEach(file => formData.append('files', file));
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const aiMsg = document.createElement('div');
+                    aiMsg.className = 'message ai-message';
+                    // CORREÇÃO: Usamos o marked.parse para converter Markdown em HTML
+                    aiMsg.innerHTML = `
+                        <div class="ai-avatar">✓</div>
+                        <div class="ai-bubble">
+                            <div class="ai-response-text">${marked.parse(data.response)}</div>
+                        </div>
+                    `;
+                    messagesDiv.appendChild(aiMsg);
+                } else {
+                    alert('Erro: ' + data.error);
+                }
+            } catch (error) {
+                alert('Erro de conexão com o servidor.');
+            } finally {
+                input.disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('loading').style.display = 'none';
+                selectedFiles = [];
+                updateFilePreview();
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        // Atalho Ctrl+Enter
+        document.getElementById('userInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) sendMessage();
+        });
+    </script>
+</body>
+</html>
