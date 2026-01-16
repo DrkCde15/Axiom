@@ -1,3 +1,8 @@
 flask
 google-genai
 pillow
+python-docx 
+python-pptx 
+pandas 
+openpyxl 
+PyPDF2

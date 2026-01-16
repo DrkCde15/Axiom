@@ -89,7 +89,7 @@ O servidor estará rodando em: `http://localhost:5000`
 ✅ Análise com IA (Gemini)  
 ✅ Feedback estruturado e detalhado  
 ✅ Histórico de conversas  
-✅ Sistema de classificação visual por cores  
+✅ Sistema de classificação visual  
 
 ## 🛠️ Tecnologias
 
