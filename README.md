@@ -96,12 +96,12 @@ O servidor estará rodando em: `http://localhost:5000`
 - **Backend:** Python
 - **Frontend:** HTML5, CSS3, JavaScript
 - **IA:** Google Gemini API
-- **Processamento de Imagens:** Pillow
+- **Processamento de Documentos:** pandas
 
 ## 📝 Notas
 
 - Tamanho máximo de arquivo: 16MB
-- Formatos aceitos: Imagens (JPG, PNG, PDF, DOCX)
+- Formatos aceitos: PDF, DOCX, XLSX, PPTX
 - A API Key do Gemini tem limite gratuito de requisições
 
 ## 📧 Suporte
